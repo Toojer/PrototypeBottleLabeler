@@ -11,7 +11,7 @@
 #include <AccelStepper.h>
 #include <ezButton.h>
 
-ezButton button(2);  // create ezButton object that attach to pin 2;
+  // create ezButton object that attach to pin 2;
 
 // define step constant
 #define FULLSTEP 4 //Doing full steps with stepper motor
@@ -19,14 +19,17 @@ ezButton button(2);  // create ezButton object that attach to pin 2;
 #define GEAR_SET_REDUCTION 64 //gear set reduction in 28BYJ-48 Stepper Motor is 1/64
 //The STEP_PER_REVOLUTION value is calculated for the number of steps in motor with gear set reduction from datasheet
 #define STEP_PER_REVOLUTION (STEPS_PER_REV*GEAR_SET_REDUCTION)  
+#define irSensorPin 2 //Assign pin two as digital input.
+
 
 // Pins entered in sequence IN1-IN3-IN2-IN4 for proper step sequence
 AccelStepper stickerMotor(FULLSTEP, 11, 9, 10, 8);  //
 AccelStepper conveyorMotor(FULLSTEP, 7, 5, 6, 4);
 
+
 void setup() {
   Serial.begin(9600);
-  button.setDebounceTime(80);         // set debounce time to 80 milliseconds
+  pinMode(irSensorPin, INPUT);        // Set IR sensor pin as input
   stickerMotor.setMaxSpeed(600);      // set the maximum speed
   stickerMotor.setAcceleration(200);  // set acceleration
   stickerMotor.setSpeed(200);         // set initial speed
@@ -35,22 +38,18 @@ void setup() {
   conveyorMotor.setSpeed(200);        // set initial speed
 }
 void loop() {
-  button.loop();  // MUST call the loop() function first
 
+  int sensorValue = digitalRead(irSensorPin);  // Read the value from the IR sensor
 
-  if (button.isPressed())
-    Serial.println("The button is pressed");
-
-  if (button.isReleased()) {
+  if (sensorValue == LOW) {
     //stickerMotor.stop();  //stop motors
     //conveyorMotor.stop();
     stickerMotor.setCurrentPosition(0);  // set position
     conveyorMotor.setCurrentPosition(0);
     Serial.println("The button is released");
-    stickerMotor.moveTo(-STEP_PER_REVOLUTION * 5);
-    conveyorMotor.moveTo(STEP_PER_REVOLUTION * 3);
+    stickerMotor.moveTo(-STEP_PER_REVOLUTION * 2);
+    conveyorMotor.moveTo(STEP_PER_REVOLUTION * 2);
   }
   stickerMotor.run();
   conveyorMotor.run();
-  //stickerMotor.run();  // MUST be called in loop() function
 }
