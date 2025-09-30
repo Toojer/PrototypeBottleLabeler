@@ -27,10 +27,10 @@ AccelStepper conveyorMotor(FULLSTEP, 7, 5, 6, 4);
 void setup() {
   Serial.begin(9600);
   button.setDebounceTime(80);         // set debounce time to 80 milliseconds
-  stickerMotor.setMaxSpeed(800);      // set the maximum speed
-  stickerMotor.setAcceleration(100);  // set acceleration
+  stickerMotor.setMaxSpeed(600);      // set the maximum speed
+  stickerMotor.setAcceleration(200);  // set acceleration
   stickerMotor.setSpeed(200);         // set initial speed
-  conveyorMotor.setMaxSpeed(800);     // set the maximum speed
+  conveyorMotor.setMaxSpeed(500);     // set the maximum speed
   conveyorMotor.setAcceleration(100); // set acceleration
   conveyorMotor.setSpeed(200);        // set initial speed
 }
@@ -42,15 +42,15 @@ void loop() {
     Serial.println("The button is pressed");
 
   if (button.isReleased()) {
-    stickerMotor.stop();  //stop motors
-    conveyorMotor.stop();
+    //stickerMotor.stop();  //stop motors
+    //conveyorMotor.stop();
     stickerMotor.setCurrentPosition(0);  // set position
     conveyorMotor.setCurrentPosition(0);
     Serial.println("The button is released");
-    stickerMotor.moveTo(STEP_PER_REVOLUTION * 2);
+    stickerMotor.moveTo(-STEP_PER_REVOLUTION * 5);
     conveyorMotor.moveTo(STEP_PER_REVOLUTION * 3);
   }
-
+  stickerMotor.run();
   conveyorMotor.run();
-  stickerMotor.run();  // MUST be called in loop() function
+  //stickerMotor.run();  // MUST be called in loop() function
 }
