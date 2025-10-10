@@ -1,9 +1,10 @@
 #include <AccelStepper.h>
 #include "cmd_line_debug.h"
+#include "run_motor.h"
 
 int sensorValue = HIGH;         //Assign HIGH signaling sticker, not sticker the gap.
 
-bool runAllowed = false;
+bool runAllowed = true;
 #define irSensorPin 2  //Assign pin two as digital input.
 AccelStepper stepper(1, 8, 9);  // direction Digital 9 (CCW), pulses Digital 8 (CLK)
 
@@ -26,20 +27,5 @@ void loop() {
 
   runAllowed = checkSerial(stepper);  //check serial port for new commands
   sensorValue = digitalRead(irSensorPin);  // Read the value from the IR sensor
-  RunTheMotor(stepper, runAllowed, sensorValue);  //function to handle the motor
-
-  
-}
-
-void RunTheMotor(AccelStepper &stepper, bool runAllowed, int sensorValue)  //function for the motor
-{
-  if ((runAllowed) && (sensorValue)) {
-    stepper.enableOutputs();  //enable pins
-    stepper.run();            //step the motor (this will step the motor by 1 step at each loop)
-  } else                      //program enters this part if the runallowed is FALSE, we do not do anything
-  {
-    stepper.disableOutputs();  //disable outputs
-    stepper.stop();
-    return;
-  }
+  RunMotor(stepper, runAllowed, sensorValue);  //function to handle the motor 
 }
