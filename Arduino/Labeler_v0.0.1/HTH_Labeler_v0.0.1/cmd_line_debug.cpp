@@ -5,19 +5,20 @@
 
 //Allows user to use debug commands when connected to a serial port.  See PrintCommands() function for details on available commands.
 
+int directionMultiplier = 1;  // = 1: positive direction, = -1: negative direction
+
+bool newData = false;  // booleans for new data from serial, and runallowed flag
+//User-defined values
+long receivedSteps = 0;         //Number of steps
+long receivedSpeed = 0;         //Steps / second
+long receivedAcceleration = 0;  //Steps / second^2                 //indicate that there is a new data by setting this bool to true
+
 bool checkSerial(AccelStepper &stepper)  //function for receiving the commands
 {
+  bool runallowed = false;
+  char receivedCommand = "";
   if (Serial.available() > 0)  //if serial is connected use debug functionality.
   {
-    bool runallowed = false;      // booleans for new data from serial, and runallowed flag
-    int directionMultiplier = 1;  // = 1: positive direction, = -1: negative direction
-    char receivedCommand;
-    bool newData = false;  // booleans for new data from serial, and runallowed flag
-    //User-defined values
-    long receivedSteps = 0;         //Number of steps
-    long receivedSpeed = 0;         //Steps / second
-    long receivedAcceleration = 0;  //Steps / second^2                 //indicate that there is a new data by setting this bool to true
-
 
     receivedCommand = Serial.read();  // pass the value to the receivedCommad variable
     newData = true;
@@ -28,10 +29,10 @@ bool checkSerial(AccelStepper &stepper)  //function for receiving the commands
 
         case 'P':  //P uses the move() function of the AccelStepper library, which means that it moves relatively to the current position.
 
-          receivedSteps = Serial.parseFloat();                                             //value for the steps
-          receivedSpeed = Serial.parseFloat();                                             //value for the speed
-          directionMultiplier = 1;                                                         //We define the direction
-          Serial.println("Positive direction.");                                           //print the action
+          receivedSteps = Serial.parseFloat();                                                      //value for the steps
+          receivedSpeed = Serial.parseFloat();                                                      //value for the speed
+          directionMultiplier = 1;                                                                  //We define the direction
+          Serial.println("Positive direction.");                                                    //print the action
           runallowed = RotateRelative(stepper, directionMultiplier, receivedSpeed, receivedSteps);  //Run the function
 
           //example: P2000 400 - 2000 steps (5 revolution with 400 step/rev microstepping) and 400 steps/s speed
@@ -40,10 +41,10 @@ bool checkSerial(AccelStepper &stepper)  //function for receiving the commands
 
         case 'N':  //N uses the move() function of the AccelStepper library, which means that it moves relatively to the current position.
 
-          receivedSteps = Serial.parseFloat();                                             //value for the steps
-          receivedSpeed = Serial.parseFloat();                                             //value for the speed
-          directionMultiplier = -1;                                                        //We define the direction
-          Serial.println("Negative direction.");                                           //print action
+          receivedSteps = Serial.parseFloat();                                                      //value for the steps
+          receivedSpeed = Serial.parseFloat();                                                      //value for the speed
+          directionMultiplier = -1;                                                                 //We define the direction
+          Serial.println("Negative direction.");                                                    //print action
           runallowed = RotateRelative(stepper, directionMultiplier, receivedSpeed, receivedSteps);  //Run the function
 
           //example: N2000 400 - 2000 steps (5 revolution with 400 step/rev microstepping) and 500 steps/s speed; will rotate in the other direction
@@ -52,10 +53,10 @@ bool checkSerial(AccelStepper &stepper)  //function for receiving the commands
 
         case 'R':  //R uses the moveTo() function of the AccelStepper library, which means that it moves absolutely to the current position.
 
-          receivedSteps = Serial.parseFloat();                                             //value for the steps
-          receivedSpeed = Serial.parseFloat();                                             //value for the speed
-          directionMultiplier = 1;                                                         //We define the direction
-          Serial.println("Absolute position (+).");                                        //print the action
+          receivedSteps = Serial.parseFloat();                                                      //value for the steps
+          receivedSpeed = Serial.parseFloat();                                                      //value for the speed
+          directionMultiplier = 1;                                                                  //We define the direction
+          Serial.println("Absolute position (+).");                                                 //print the action
           runallowed = RotateAbsolute(stepper, directionMultiplier, receivedSpeed, receivedSteps);  //Run the function
 
           //example: R800 400 - It moves to the position which is located at +800 steps away from 0.
@@ -63,10 +64,10 @@ bool checkSerial(AccelStepper &stepper)  //function for receiving the commands
 
         case 'r':  //r uses the moveTo() function of the AccelStepper library, which means that it moves absolutely to the current position.
 
-          receivedSteps = Serial.parseFloat();                                             //value for the steps
-          receivedSpeed = Serial.parseFloat();                                             //value for the speed
-          directionMultiplier = -1;                                                        //We define the direction
-          Serial.println("Absolute position (-).");                                        //print the action
+          receivedSteps = Serial.parseFloat();                                                      //value for the steps
+          receivedSpeed = Serial.parseFloat();                                                      //value for the speed
+          directionMultiplier = -1;                                                                 //We define the direction
+          Serial.println("Absolute position (-).");                                                 //print the action
           runallowed = RotateAbsolute(stepper, directionMultiplier, receivedSpeed, receivedSteps);  //Run the function
 
           //example: r800 400 - It moves to the position which is located at -800 steps away from 0.
@@ -102,7 +103,7 @@ bool checkSerial(AccelStepper &stepper)  //function for receiving the commands
 
           runallowed = true;
           Serial.println("Homing");  //Print the message
-          GoHome(stepper);                  // Run the function
+          GoHome(stepper);           // Run the function
           break;
 
         case 'U':
@@ -117,10 +118,11 @@ bool checkSerial(AccelStepper &stepper)  //function for receiving the commands
         case 'C':
 
           PrintCommands();  //Print the commands for controlling the motor
+          runallowed = true;
           break;
 
         default:
-
+          runallowed = true;
           break;
       }
       return runallowed;
@@ -146,6 +148,8 @@ void GoHome(AccelStepper &stepper) {
 bool RotateRelative(AccelStepper &stepper, int directionMultiplier, long receivedSpeed, long receivedSteps) {
   //We move X steps from the current position of the stepper motor in a given direction.
   //The direction is determined by the multiplier (+1 or -1)
+  Serial.println(receivedSpeed);
+  Serial.println(receivedSteps);
   stepper.setMaxSpeed(receivedSpeed);                 //set speed
   stepper.move(directionMultiplier * receivedSteps);  //set relative distance and direction
   return true;                                        //allow running - this allows entering the RunTheMotor() function.
@@ -158,6 +162,8 @@ bool RotateAbsolute(AccelStepper &stepper, int directionMultiplier, long receive
   //The AccelStepper library keeps track of the position.
   //The direction is determined by the multiplier (+1 or -1)
   //Why do we need negative numbers? - If you drive a threaded rod and the zero position is in the middle of the rod...
+  Serial.println(receivedSpeed);
+  Serial.println(receivedSteps);
   stepper.setMaxSpeed(receivedSpeed);                   //set speed
   stepper.moveTo(directionMultiplier * receivedSteps);  //set relative distance
   return true;                                          //allow running - this allows entering the RunTheMotor() function.
