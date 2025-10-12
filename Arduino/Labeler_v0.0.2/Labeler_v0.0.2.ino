@@ -18,12 +18,12 @@ LabelerStates previousState = UNKNOWN;
 
 void setup() {
   //Conveyor belt control motor
-  conveyorMotor.setMaxSpeed(1000);      //SPEED = Steps / second
-  conveyorMotor.setAcceleration(200);  //ACCELERATION = Steps /(second)^2
+  conveyorMotor.setMaxSpeed(1500);      //SPEED = Steps / second
+  conveyorMotor.setAcceleration(500);  //ACCELERATION = Steps /(second)^2
   conveyorMotor.enableOutputs();      //disable outputs
 
   //Sticker Motor Control
-  stickerMotor.setMaxSpeed(1000);
+  stickerMotor.setMaxSpeed(1100);
   stickerMotor.setAcceleration(200);
   stickerMotor.enableOutputs();
 
