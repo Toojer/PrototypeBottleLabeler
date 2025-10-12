@@ -4,7 +4,8 @@
 #include <ezButton.h>
 #include "hth_labeler_states.h"
 
-//int stickerEdgeSensor = HIGH;  //Assign HIGH signaling sticker, not the sticker edge.
+const char* LabelerStateNames[NUM_STATES] = {"START", "INITIALIZE", "PEEL", "LABEL", "EXIT", "REMOVE", "WAIT", "UNKNOWN"};
+int stickerEdgeSensor = HIGH;  //Assign HIGH signaling sticker, not the sticker edge.
 int triggerLabeler = HIGH; //Assign HIGH to show button high
 
 bool runAllowed = true;
@@ -17,14 +18,13 @@ LabelerStates previousState = UNKNOWN;
 
 void setup() {
   //Conveyor belt control motor
-  conveyorMotor.setMaxSpeed(2000);      //SPEED = Steps / second
-  conveyorMotor.setAcceleration(800);  //ACCELERATION = Steps /(second)^2
+  conveyorMotor.setMaxSpeed(1000);      //SPEED = Steps / second
+  conveyorMotor.setAcceleration(200);  //ACCELERATION = Steps /(second)^2
   conveyorMotor.enableOutputs();      //disable outputs
 
   //Sticker Motor Control
-  stickerMotor.setMaxSpeed(20000);
-  stickerMotor.setAcceleration(800);
-  stickerMotor.move(5000);
+  stickerMotor.setMaxSpeed(1000);
+  stickerMotor.setAcceleration(200);
   stickerMotor.enableOutputs();
 
   //debug serial if available
@@ -47,35 +47,52 @@ void loop() {
     case START:
       previousState = START;
       state = startLabeler(stickerMotor);  //starts the motor moving
+      //delay(1000);
+      //Serial.print("START -> Next state: ");
+      //Serial.println(LabelerStateNames[state]);
       break;
 
     case INITIALIZE:
       state = InitializeLabeler(stickerMotor, irStickerSensorPin, previousState);
       previousState = INITIALIZE;
+      //Serial.print("Initialize -> Next state: ");
+      //Serial.println(LabelerStateNames[state]);
       break;
 
     case WAIT:
-      state = WaitForStimulus(triggerLabeler, previousState, trigger);
+      state = WaitForStimulus(conveyorMotor, trigger, previousState);
       previousState = WAIT;
+      //Serial.print("WAIT -> Next state: ");
+      //Serial.println(LabelerStateNames[state]);
+      break;
 
     case PEEL:
-      state = PeelSticker(stickerMotor, irStickerSensorPin,  previousState);
+      Serial.println("entered peel state");
+      state = PeelSticker(stickerMotor, conveyorMotor, irStickerSensorPin,  previousState);
       previousState = PEEL;
+      //Serial.print("PEEL -> Next state: ");
+      //Serial.println(LabelerStateNames[state]);
       break;
 
     case LABEL:
       state = LabelBottle(stickerMotor, conveyorMotor, irStickerSensorPin, previousState);
       previousState = LABEL;
+      //Serial.print("LABEL -> Next state: ");
+      //Serial.println(LabelerStateNames[state]);
       break;
 
     case EXIT:     
       state = ExitBottle(conveyorMotor, trigger, previousState);
       previousState = EXIT;
+      //Serial.print("EXIT -> Next state: ");
+      //Serial.println(LabelerStateNames[state]);
       break;
 
     default:
       previousState = UNKNOWN;
+      Serial.println("unknown state reached");
       state = WAIT;
+      break;
   }
-    //function to handle the motor
 }
+
