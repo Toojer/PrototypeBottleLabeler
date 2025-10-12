@@ -86,10 +86,11 @@ LabelerStates LabelBottle(AccelStepper &stickerStepper, AccelStepper &convSteppe
   if (stickerEdgeReading) {
     return LABEL;
   } else {
-    return EXIT;
+    return PEEL;
   }
 }
 
+//Not Used
 LabelerStates ExitBottle(AccelStepper &stepper, int TriggerSensor, LabelerStates PreviousState)  //Continue the conveyer belt until the bottle labeler is triggered again, or finishes the distance
 {
   if (PreviousState != EXIT) {
