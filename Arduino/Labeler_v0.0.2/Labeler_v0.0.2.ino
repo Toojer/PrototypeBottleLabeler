@@ -1,5 +1,5 @@
 #include <AccelStepper.h>
-#include "cmd_line_debug.h"
+//#include "cmd_line_debug.h"
 #include "run_motor.h"
 #include <ezButton.h>
 #include "hth_labeler_states.h"
@@ -12,23 +12,25 @@ bool runAllowed = true;
 #define trigger 3 //Assign pin 1 as digital input.
 AccelStepper conveyorMotor(1, 8, 9);  // direction Digital 9 (CCW), pulses Digital 8 (CLK)
 AccelStepper stickerMotor(1, 5, 6);   //Direction digital 6 (CCW) , pulses Digital 5 (CLK)
-LabelerStates state, previousState = START;
+LabelerStates state = START;
+LabelerStates previousState = UNKNOWN;
 
 void setup() {
   //Conveyor belt control motor
-  conveyorMotor.setMaxSpeed(400);      //SPEED = Steps / second
+  conveyorMotor.setMaxSpeed(2000);      //SPEED = Steps / second
   conveyorMotor.setAcceleration(800);  //ACCELERATION = Steps /(second)^2
-  conveyorMotor.disableOutputs();      //disable outputs
+  conveyorMotor.enableOutputs();      //disable outputs
 
   //Sticker Motor Control
-  stickerMotor.setMaxSpeed(400);
+  stickerMotor.setMaxSpeed(20000);
   stickerMotor.setAcceleration(800);
-  stickerMotor.disableOutputs();
+  stickerMotor.move(5000);
+  stickerMotor.enableOutputs();
 
   //debug serial if available
   Serial.begin(9600);                                       //define baud rate
-  Serial.println("Demonstration of AccelStepper Library");  //print a messages
-  Serial.println("Send 'commands' for printing the commands.");
+  //Serial.println("Demonstration of AccelStepper Library");  //print a messages
+  Serial.println("Powering Up..");
 
   //edge of sticker sensor
   pinMode(irStickerSensorPin, INPUT);  // Set IR sensor pin as input
@@ -41,34 +43,38 @@ void setup() {
 void loop() {
   //runAllowed = checkSerial(conveyorMotor, stickerMotor);     //check serial port for new commands
   //stickerEdgeSensor = digitalRead(irSensorPin);
-  
-  previousState = state;
   switch (state) {
-
     case START:
-      state = startLabeler();  //starts the motor moving
+      previousState = START;
+      state = startLabeler(stickerMotor);  //starts the motor moving
       break;
 
     case INITIALIZE:
       state = InitializeLabeler(stickerMotor, irStickerSensorPin, previousState);
+      previousState = INITIALIZE;
       break;
 
     case WAIT:
       state = WaitForStimulus(triggerLabeler, previousState, trigger);
+      previousState = WAIT;
 
     case PEEL:
-      state = PeelSticker(irStickerSensorPin, previousState);
+      state = PeelSticker(stickerMotor, irStickerSensorPin,  previousState);
+      previousState = PEEL;
       break;
 
     case LABEL:
-      state = LabelBottle(irStickerSensorPin, previousState);
+      state = LabelBottle(stickerMotor, conveyorMotor, irStickerSensorPin, previousState);
+      previousState = LABEL;
       break;
 
-    case EXIT:
+    case EXIT:     
       state = ExitBottle(conveyorMotor, trigger, previousState);
+      previousState = EXIT;
       break;
 
     default:
+      previousState = UNKNOWN;
       state = WAIT;
   }
     //function to handle the motor

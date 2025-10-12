@@ -7,5 +7,5 @@
 void RunMotor(AccelStepper &stepper, bool runAllowed);
   
 //Runs the sticker motor until the sensor reads the sticker edge.
-void RunStickerMotor(AccelStepper &stepper, bool runAllowed, int sensorValue);
+void RunStickerMotor(AccelStepper &stepper, bool runAllowed, bool sensorValue);
   

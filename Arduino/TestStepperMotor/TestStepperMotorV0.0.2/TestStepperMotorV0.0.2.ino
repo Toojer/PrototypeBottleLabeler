@@ -30,8 +30,8 @@ char receivedCommand;
 int directionMultiplier = 1;       // = 1: positive direction, = -1: negative direction
 bool newData, runallowed = false;  // booleans for new data from serial, and runallowed flag
 int sensorValue =  HIGH; //Assign HIGH signaling sticker, not sticker the gap. 
-AccelStepper stepper(1, 8, 9);     // Conveyor Motor direction Digital 9 (CCW), pulses Digital 8 (CLK)
-//AccelStepper stepper(1, 5, 6); //Sticker Motor
+//AccelStepper stepper(1, 8, 9);     // Conveyor Motor direction Digital 9 (CCW), pulses Digital 8 (CLK)
+AccelStepper stepper(1, 5, 6); //Sticker Motor
 #define irSensorPin 2  //Assign pin two as digital input.
 
 void setup() {
