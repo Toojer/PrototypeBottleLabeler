@@ -10,7 +10,7 @@ Using Arduino UNO R3 from about 2013.  Works fine in initial build.  Can't imagi
 
 ##HTH-Labeler V0.0.2
 Working version of Hollow Tree Honey Labeler.  
-Using the wiring diagram in this link: https://app.cirkitdesigner.com/project/24e298cb-4bf9-4c1a-9849-ebac42283642
+Using the wiring diagram in this link: https://app.cirkitdesigner.com/project/c41a8507-ad76-4ab4-bd35-226023dee190
 State Machine Diagram: https://app.eraser.io/workspace/VIW54B9ORTzyumQmciQi?origin=share&elements=ARcO06gMG7ZF2DctsO8ffw
 
 ##TestMotor V0.0.2
