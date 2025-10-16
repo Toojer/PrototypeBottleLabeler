@@ -22,13 +22,13 @@ enum LabelerStates {
 #include "AccelStepper.h"
 
 //This will be the first state the labeler enters when powered on. This will prime the sticker reel to run.
-LabelerStates startLabeler(AccelStepper &stepper);
+LabelerStates startLabeler(AccelStepper &stickerStepper);
 
 //Initializes the sticker until gap/edge detected.
-LabelerStates InitializeLabeler(AccelStepper &stepper, int stickerSensor, LabelerStates PreviousState);
+LabelerStates InitializeLabeler(AccelStepper &stickerStepper, int stickerSensor, LabelerStates PreviousState);
 
 //Waiting for stimulus to signal a bottle is ready to be labeled.
-LabelerStates WaitForStimulus(AccelStepper &stepper, int triggerSensor, LabelerStates PreviousState);
+LabelerStates WaitForStimulus(AccelStepper &convStepper, int triggerSensor, LabelerStates PreviousState);
 
 //Between ExitBottle LabelerStates, must peel the sticker until edge gap detected, then go to Wait state
 LabelerStates PeelSticker(AccelStepper &stickerStepper, AccelStepper &convStepper, int stickerSensor, LabelerStates PreviousState);
@@ -37,4 +37,4 @@ LabelerStates PeelSticker(AccelStepper &stickerStepper, AccelStepper &convSteppe
 LabelerStates LabelBottle(AccelStepper &stickerStepper, AccelStepper &convStepper, int stickerSensor, LabelerStates PreviousState);
 
 //When no stimulus received that a new bottle is present, the conveyor belt will continue to roll out the bottles.
-LabelerStates ExitBottle(AccelStepper &stepper, int TriggerSensor, LabelerStates PreviousState);
+LabelerStates ExitBottle(AccelStepper &convStepper, int TriggerSensor, LabelerStates PreviousState);

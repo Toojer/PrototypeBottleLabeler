@@ -11,17 +11,16 @@ int triggerLabeler = HIGH; //Assign HIGH to show button high
 bool runAllowed = true;
 #define irStickerSensorPin 2                 //Assign pin two as digital input.
 #define trigger 3 //Assign pin 1 as digital input.
-AccelStepper conveyorMotor(1, 8, 9);  // direction Digital 9 (CCW), pulses Digital 8 (CLK)
-AccelStepper stickerMotor(1, 5, 6);   //Direction digital 6 (CCW) , pulses Digital 5 (CLK)
+AccelStepper conveyorMotor(1, 8, 9);  // pulses Digital 8 (CLK), direction Digital 9 (CCW) 
+AccelStepper stickerMotor(1, 5, 6);   // pulses Digital 5 (CLK), Direction digital 6 (CCW)
 LabelerStates state = START;
 LabelerStates previousState = UNKNOWN;
 
 void setup() {
   //Conveyor belt control motor
   conveyorMotor.setMaxSpeed(1500);      //SPEED = Steps / second
-  conveyorMotor.setAcceleration(500);  //ACCELERATION = Steps /(second)^2
-  conveyorMotor.enableOutputs();      //disable outputs
-
+  conveyorMotor.setAcceleration(400);  //ACCELERATION = Steps /(second)^2
+  conveyorMotor.enableOutputs();   
   //Sticker Motor Control
   stickerMotor.setMaxSpeed(1100);
   stickerMotor.setAcceleration(200);
@@ -47,50 +46,36 @@ void loop() {
     case START:
       previousState = START;
       state = startLabeler(stickerMotor);  //starts the motor moving
-      //delay(1000);
-      //Serial.print("START -> Next state: ");
-      //Serial.println(LabelerStateNames[state]);
       break;
 
     case INITIALIZE:
       state = InitializeLabeler(stickerMotor, irStickerSensorPin, previousState);
       previousState = INITIALIZE;
-      //Serial.print("Initialize -> Next state: ");
-      //Serial.println(LabelerStateNames[state]);
       break;
 
     case WAIT:
       state = WaitForStimulus(conveyorMotor, trigger, previousState);
       previousState = WAIT;
-      //Serial.print("WAIT -> Next state: ");
-      //Serial.println(LabelerStateNames[state]);
       break;
 
     case PEEL:
       Serial.println("entered peel state");
       state = PeelSticker(stickerMotor, conveyorMotor, irStickerSensorPin,  previousState);
       previousState = PEEL;
-      //Serial.print("PEEL -> Next state: ");
-      //Serial.println(LabelerStateNames[state]);
       break;
 
     case LABEL:
       state = LabelBottle(stickerMotor, conveyorMotor, irStickerSensorPin, previousState);
       previousState = LABEL;
-      //Serial.print("LABEL -> Next state: ");
-      //Serial.println(LabelerStateNames[state]);
       break;
 
     case EXIT:     
       state = ExitBottle(conveyorMotor, trigger, previousState);
       previousState = EXIT;
-      //Serial.print("EXIT -> Next state: ");
-      //Serial.println(LabelerStateNames[state]);
       break;
 
     default:
       previousState = UNKNOWN;
-      Serial.println("unknown state reached");
       state = WAIT;
       break;
   }
