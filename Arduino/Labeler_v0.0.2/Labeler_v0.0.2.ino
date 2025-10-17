@@ -9,7 +9,7 @@ int stickerEdgeSensor = HIGH;  //Assign HIGH signaling sticker, not the sticker 
 int triggerLabeler = HIGH; //Assign HIGH to show button high
 
 bool runAllowed = true;
-#define irStickerSensorPin 2                 //Assign pin two as digital input.
+#define irStickerSensorPin 4                 //Assign pin two as digital input.
 #define trigger 3 //Assign pin 1 as digital input.
 AccelStepper conveyorMotor(1, 8, 9);  // pulses Digital 8 (CLK), direction Digital 9 (CCW) 
 AccelStepper stickerMotor(1, 5, 6);   // pulses Digital 5 (CLK), Direction digital 6 (CCW)
@@ -22,7 +22,7 @@ void setup() {
   conveyorMotor.setAcceleration(400);  //ACCELERATION = Steps /(second)^2
   conveyorMotor.enableOutputs();   
   //Sticker Motor Control
-  stickerMotor.setMaxSpeed(1100);
+  stickerMotor.setMaxSpeed(1000);
   stickerMotor.setAcceleration(200);
   stickerMotor.enableOutputs();
 
@@ -36,6 +36,7 @@ void setup() {
 
   //label dispenser trigger
   pinMode(trigger, INPUT); //Stimulus to start the labeler.
+  delay(6000);
 }
 
 
@@ -59,7 +60,6 @@ void loop() {
       break;
 
     case PEEL:
-      Serial.println("entered peel state");
       state = PeelSticker(stickerMotor, conveyorMotor, irStickerSensorPin,  previousState);
       previousState = PEEL;
       break;

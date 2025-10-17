@@ -5,7 +5,7 @@
 
 //This file is for controlling the labeling process state machine.
 
-int stickerEdgeReading = HIGH;
+//int stickerEdgeReading = HIGH;
 int labelerTriggerReading = HIGH;
 
 
@@ -14,7 +14,7 @@ LabelerStates startLabeler(AccelStepper &stickerStepper) {
   //will prime the sticker reel until a sticker gap/edge is detected.
   Serial.println("Starting Hollow Tree Honey Labeler....");
   stickerStepper.enableOutputs();
-  stickerStepper.moveTo(-10000);
+  stickerStepper.move(-10000);
   return INITIALIZE;
 }
 
@@ -23,7 +23,7 @@ LabelerStates InitializeLabeler(AccelStepper &stickerStepper, int stickerSensor,
   if (PreviousState != INITIALIZE) {
     Serial.println("Initializing Labeler...  Finding Sticker Edge...");
   }
-  stickerEdgeReading = digitalRead(stickerSensor);
+  int stickerEdgeReading = digitalRead(stickerSensor);
   RunStickerMotor(stickerStepper, true, stickerEdgeReading);
 
   if ((stickerStepper.distanceToGo() == 0) || !stickerEdgeReading) {
@@ -55,10 +55,12 @@ LabelerStates PeelSticker(AccelStepper &stickerStepper, AccelStepper &convSteppe
     Serial.println("Peeling Sticker to not see sticker gap on sensor");
     stickerStepper.move(-5000);
   }
-
-  while (!stickerEdgeReading) {  //while reading the gaps between stickers the signal will be low
-    stickerEdgeReading = digitalRead(stickerSensor);
-    RunStickerMotor(stickerStepper, true, !stickerEdgeReading);
+  int peelEdgeReading = false;
+  int loop = 0;
+  while (!peelEdgeReading) {  //while reading the gaps between stickers the signal will be low
+    Serial.println(loop++);
+    peelEdgeReading = digitalRead(stickerSensor);
+    RunStickerMotor(stickerStepper, true, !peelEdgeReading);
     RunMotor(convStepper, true); //Must keep the conveyor belt moving if this was previously in LABEL state.
   }
   Serial.println("Peeled sticker passed sticker edge.. moving from PEEL to WAIT");
@@ -74,10 +76,10 @@ LabelerStates LabelBottle(AccelStepper &stickerStepper, AccelStepper &convSteppe
     convStepper.move(-11000);
   }
 
-  stickerEdgeReading = digitalRead(stickerSensor);
-  RunStickerMotor(stickerStepper, true, stickerEdgeReading);
+  int stickerEdgeRead = digitalRead(stickerSensor);
+  RunStickerMotor(stickerStepper, true, stickerEdgeRead);
   RunMotor(convStepper, true);
-  if (stickerEdgeReading) {
+  if (stickerEdgeRead) {
     return LABEL;
   } else {
     return PEEL;
